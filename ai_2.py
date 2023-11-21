@@ -100,18 +100,32 @@ population = init_population(population_size)
 # Charger la liste de mots
 word_list = load_word_list('mots_extraits_1.csv')
 
-for gen in range(generations):
-    # Évaluer la population en calculant la distance totale pour chaque layout
-    evals = []
-    for layout in population:
-        total_distance = sum(calculate_distance(layout, word) for word in word_list)
-        evals.append(total_distance)
+# Variables pour le suivi de la convergence
+consecutive_no_change = 0
+layouts_generated = set()
+target_layouts = 1000  # Ou tout autre nombre souhaité de layouts différents
 
-    # Trier la population en fonction de l'évaluation
-    sorted_evals = sorted(range(len(evals)), key=lambda k: evals[k])
 
-    # Afficher la meilleure disposition du clavier de cette génération
-    print(f"Meilleur layout de la génération {gen + 1}: {population[sorted_evals[0]]}")
+# Créer un fichier CSV pour enregistrer les layouts
+with open('layouts_claviers_1.csv', mode='w', newline='') as csvfile:
+    csv_writer = csv.writer(csvfile)
 
-    # Créer une nouvelle génération
-    population = new_generation(population, sorted_evals, population_size)
+    for _ in range(target_layouts):
+        # Évaluer la population en calculant la distance totale pour chaque layout
+        evals = [sum(calculate_distance(layout, word) for word in word_list) for layout in population]
+
+        # Trier la population en fonction de l'évaluation
+        sorted_evals = sorted(range(len(evals)), key=lambda k: evals[k])
+
+        # Récupérer le meilleur layout de cette génération
+        current_best_layout = population[sorted_evals[0]]
+
+        # Enregistrer le layout dans le fichier CSV
+        csv_writer.writerow(current_best_layout)
+
+        # Créer une nouvelle génération
+        population = new_generation(population, sorted_evals, population_size)
+
+        if consecutive_no_change >= 100:
+            print(f"Arrêt prématuré : Impossible de générer {target_layouts} layouts différents.")
+            break
