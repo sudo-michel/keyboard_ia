@@ -39,13 +39,17 @@ def mate(board1, board2):
     for _ in range(length):
         if idx >= TOTAL_KEYS:
             idx = 0
-        child[idx] = board1[idx]
+        char = board1[idx]
+        if char not in child:
+            child[idx] = char
         idx += 1
 
     # Ajouter les touches restantes du clavier 2
     child_idx = [i for i in range(TOTAL_KEYS) if child[i] == '_']
     for idx, child_index in enumerate(child_idx):
-        child[child_index] = board2[idx]
+        char = board2[idx]
+        if char not in child:
+            child[child_index] = char
 
     # Ajouter les caractères manquants avec l'ordre du clavier 2
     missing_chars = [char for char in board2 if char not in child]
@@ -88,7 +92,7 @@ def calculate_distance(layout, word):
 
 # Exemple d'utilisation
 population_size = 10
-generations = 5
+generations = 100
 
 # Initialiser la population
 population = init_population(population_size)
